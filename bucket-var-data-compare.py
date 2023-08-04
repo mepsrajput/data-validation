@@ -17,18 +17,6 @@ def create_bucket_query(bucket_count, min_value, max_value):
     bucket_query += f"ELSE {bucket_count} END AS bucket"
     return bucket_query
 
-from google.cloud import bigquery
-
-project_id = "your-project-id"
-dataset_id = "your-dataset-id"
-table1_name = "table1_name"
-table2_name = "table2_name"
-base_variable = "your_numeric_variable_name"
-bucket_count = 20
-
-def create_bucket_query(bucket_count, min_value, max_value):
-    # Same as before
-
 def calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_variable, bucket_count):
     # Calculate min and max values from the data
     query = f"""
@@ -77,7 +65,7 @@ def calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_v
             bucket
     """
 
-client = bigquery.Client(project=project_id)
+lient = bigquery.Client(project=project_id)
 bucket_query = create_bucket_query(bucket_count, 0, 1)
 bucket_counts = calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_variable, bucket_count)
 
@@ -90,4 +78,5 @@ for bucket_info in bucket_counts:
     data.append([bucket_str, count_t1, count_t2])
 
 df = pd.DataFrame(data, columns=['Bucket', 'Table1_Count', 'Table2_Count'])
+print(df)
 print(df)
