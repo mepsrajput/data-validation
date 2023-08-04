@@ -47,7 +47,8 @@ def calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_v
     bucket_counts = []
     for row in results:
         bucket_counts.append({
-            'bucket': row['bucket'],
+            'min_value': row['bucket'] * (max_value - min_value) / bucket_count,
+            'max_value': (row['bucket'] + 1) * (max_value - min_value) / bucket_count,
             'count_t1': row['count_t1'],
             'count_t2': row['count_t2']
         })
@@ -58,5 +59,9 @@ client = bigquery.Client(project=project_id)
 bucket_query = create_bucket_query(bucket_count, 0, 1)
 bucket_counts = calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_variable, bucket_count)
 
+print("Bucket  Table1_Count  Table2_Count")
 for bucket_info in bucket_counts:
-    print(f"Bucket {bucket_info['bucket']}: Count in Table 1 - {bucket_info['count_t1']}, Count in Table 2 - {bucket_info['count_t2']}")
+    bucket_str = f"({bucket_info['min_value']:.2f}-{bucket_info['max_value']:.2f})"
+    count_t1 = bucket_info['count_t1']
+    count_t2 = bucket_info['count_t2']
+    print(f"{bucket_str:<8}{count_t1:<14}{count_t2}")
