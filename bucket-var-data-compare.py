@@ -82,20 +82,12 @@ bucket_query = create_bucket_query(bucket_count, 0, 1)
 bucket_counts = calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_variable, bucket_count)
 
 # Create a DataFrame with the final output
-data = {
-    'Bucket': [],
-    'Table1_Count': [],
-    'Table2_Count': []
-}
-
+data = []
 for bucket_info in bucket_counts:
     bucket_str = f"({bucket_info['min_value']:.2f}-{bucket_info['max_value']:.2f})"
     count_t1 = bucket_info['count_t1']
     count_t2 = bucket_info['count_t2']
-    
-    data['Bucket'].append(bucket_str)
-    data['Table1_Count'].append(count_t1)
-    data['Table2_Count'].append(count_t2)
+    data.append([bucket_str, count_t1, count_t2])
 
-df = pd.DataFrame(data)
+df = pd.DataFrame(data, columns=['Bucket', 'Table1_Count', 'Table2_Count'])
 print(df)
