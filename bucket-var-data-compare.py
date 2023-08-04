@@ -17,7 +17,43 @@ def create_bucket_query(bucket_count, min_value, max_value):
     bucket_query += f"ELSE {bucket_count} END AS bucket"
     return bucket_query
 
+from google.cloud import bigquery
+
+project_id = "your-project-id"
+dataset_id = "your-dataset-id"
+table1_name = "table1_name"
+table2_name = "table2_name"
+base_variable = "your_numeric_variable_name"
+bucket_count = 20
+
+def create_bucket_query(bucket_count, min_value, max_value):
+    # Same as before
+
 def calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_variable, bucket_count):
+    # Calculate min and max values from the data
+    query = f"""
+        SELECT
+            MIN({base_variable}) AS min_value,
+            MAX({base_variable}) AS max_value
+        FROM
+            `{project_id}.{dataset_id}.{table1_name}`
+        UNION ALL
+        SELECT
+            MIN({base_variable}) AS min_value,
+            MAX({base_variable}) AS max_value
+        FROM
+            `{project_id}.{dataset_id}.{table2_name}`
+    """
+
+    query_job = client.query(query)
+    results = query_job.result()
+
+    for row in results:
+        min_value = row['min_value']
+        max_value = row['max_value']
+
+    bucket_query = create_bucket_query(bucket_count, min_value, max_value)
+
     query = f"""
         WITH
         t1 AS (
@@ -56,7 +92,6 @@ def calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_v
     return bucket_counts
 
 client = bigquery.Client(project=project_id)
-bucket_query = create_bucket_query(bucket_count, 0, 1)
 bucket_counts = calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_variable, bucket_count)
 
 print("Bucket  Table1_Count  Table2_Count")
@@ -65,3 +100,4 @@ for bucket_info in bucket_counts:
     count_t1 = bucket_info['count_t1']
     count_t2 = bucket_info['count_t2']
     print(f"{bucket_str:<8}{count_t1:<14}{count_t2}")
+
