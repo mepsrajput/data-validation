@@ -77,20 +77,6 @@ def calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_v
             bucket
     """
 
-    query_job = client.query(query)
-    results = query_job.result()
-
-    bucket_counts = []
-    for row in results:
-        bucket_counts.append({
-            'min_value': row['bucket'] * (max_value - min_value) / bucket_count,
-            'max_value': (row['bucket'] + 1) * (max_value - min_value) / bucket_count,
-            'count_t1': row['count_t1'],
-            'count_t2': row['count_t2']
-        })
-
-    return bucket_counts
-
 client = bigquery.Client(project=project_id)
 bucket_query = create_bucket_query(bucket_count, 0, 1)
 bucket_counts = calculate_bucket_counts(client, dataset_id, table1_name, table2_name, base_variable, bucket_count)
